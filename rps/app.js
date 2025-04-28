@@ -1,6 +1,6 @@
-// Copyright (c) 2023 Algorealm, Inc.
+// Copyright (c) 2025 Algorealm, Inc.
 
-// imports
+// Imports
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 import path, { parse } from 'path';
@@ -14,44 +14,155 @@ const bodyParser = require('body-parser');
 const port = 4000;
 const cors = require("cors");
 
-// static files
+// Static files
 app.use(express.static('public'));
 app.use('/css', express.static(__dirname + 'public/css'));
 app.use('/js', express.static(__dirname + 'public/js'));
 app.use('/img', express.static(__dirname + 'public/img'));
 
-// set views
+// Set views
 app.set('views', './views');
 app.set('view engine', 'ejs');
 
-// blockchain essentials
-// import { ApiPromise, WsProvider } from '@polkadot/api';
-// import { mnemonicGenerate, cryptoWaitReady, blake2AsHex } from '@polkadot/util-crypto';
-// const { Keyring } = require('@polkadot/keyring');
-// import { ContractPromise } from '@polkadot/api-contract';
-
-// local imports
+// Local imports
 import * as util from "./utility.js";
-import * as meta from "./metadata.js";
 // import * as chain from "./mediator.cjs.js";
-
-// blockchain config
-// const wsProvider = new WsProvider('wss://rococo-contracts-rpc.polkadot.io');
-// const chainApi = await ApiPromise.create({ provider: wsProvider });
-// const keyring = new Keyring({ type: 'sr25519' });
-// const contract_addr = "5GpVUDUCJtMcXtwocMuD89JXZ94BNdxhdn3MaqBRXmo5BZFH";
-// const contract = new ContractPromise(chainApi, meta.metadata(), contract_addr);
-
-// Funded account (ROC)
-// const MNEMONICS = "dilemma quarter decrease simple climb boring liberty tobacco upper axis neutral suit";
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 
+
+// Blockchain essentials
+import { mnemonicGenerate, cryptoWaitReady, blake2AsHex, xxhashAsHex } from '@polkadot/util-crypto';
+import { Keyring } from '@polkadot/keyring';
+import { contracts, assets } from "@polkadot-api/descriptors"
+import { getPolkadotSigner } from "polkadot-api/signer"
+import { getInkClient } from "polkadot-api/ink"
+import { createClient } from "polkadot-api"
+import { withPolkadotSdkCompat } from "polkadot-api/polkadot-sdk-compat"
+import { getWsProvider } from "polkadot-api/ws-provider/web"
+
+const client = createClient(
+    withPolkadotSdkCompat(
+        getWsProvider("ws://127.0.0.1:9944"),
+    ),
+);
+
+const typedApi = client.getTypedApi(assets);
+const assetVerse = getInkClient(contracts.assets)
+
+const CONTRACT_INSTANCE = "5HES46CSu4icQcUbGKbXYjg3pNuyHGDozsdf1sEFf7KiDP6M";
+const keyring = new Keyring({ type: 'sr25519' });
+
+// You optionally can make sure the hash hasn't changed by checking compatibility
+// if (!(await contract.isCompatible())) {
+//     throw new Error("Contract has changed");
+// }
+
+// test accounts
+let alice = {};
+let bob = {};
+let alice_signer = {};
+
+// wait 5 secs for the wasm init
+setTimeout(async () => {
+    await cryptoWaitReady().then(() => {
+        alice = keyring.addFromUri('//Alice');    // for running tests
+        bob = keyring.addFromUri('//Bob');    // for running tests
+
+        alice_signer = getPolkadotSigner(alice.publicKey, "Sr25519", alice.sign);
+    });
+}, 5000);
+
 app.get('', (req, res) => {
     res.render('index', { text: 'This is sparta' });
 });
 
+// Chain Menu
+app.get('/chain-menu', (req, res) => {
+    res.render('chain-menu', {});
+});
+
+app.get('/gen-keys', (req, res) => {
+    createAccount(res);
+});
+
+// Create a new account on chain
+async function createAccount(res) {
+    // try {
+    // First generate the mnemonics and account
+    const mnemonic = mnemonicGenerate();
+    const user = keyring.createFromUri(mnemonic, 'sr25519');
+
+    const createAccount = assetVerse.message("register_player")
+    const data = createAccount.encode();
+
+    console.log(alice.address);
+
+    const response = await typedApi.apis.ContractsApi.call(
+        alice.address,
+        CONTRACT_INSTANCE,
+        0n,
+        undefined,
+        undefined,
+        data,
+    )
+
+
+    console.log("dsibfnds");
+    if (response.result.success) {
+        console.log(createAccount.decode(response.result.value));
+        console.log(assetVerse.event.filter(CONTRACT_INSTANCE, response.events));
+
+        // Sending the reel deel
+        // const result = await typedApi.tx.Contracts.call({
+        //   value: 0n, 
+        //   data,
+        //   dest: MultiAddress.Id(ADDRESS.psp22),
+        //   gas_limit: response.gas_required,
+        //   storage_deposit_limit: undefined,
+        // }).signAndSubmit(signer)
+
+        console.log("tx events", assetVerse.event.filter(ADDRESS.psp22, result.events));
+    } else {
+        console.log(
+            response.result.value,
+            response.gas_consumed,
+            response.gas_required,
+        );
+    }
+
+    // console.log(allowanceTxResult);
+
+    // if (allowanceTxResult.ok) {
+    //     console.log("block", allowanceTxResult.block)
+    //     // The events generated by this contract can also be filtered using `filterEvents`:
+    //     console.log("events", contract.filterEvents(allowanceTxResult.events))
+    // } else {
+    //     console.log("error", allowanceTxResult.dispatchError)
+    // }
+
+    // return the keys to the user for next auth
+    // return res.send({
+    //     data: {
+    //         seed: mnemonic,
+    //         nonce: session_nonce,
+    //         ss58_addr: user.address
+    //     },
+    //     error: false
+    // })
+
+    // } catch (e) {
+    //     return res.send({
+    //         data: {
+    //             seed: "",
+    //             nonce: ""
+    //         },
+    //         error: true
+    //     })
+    // }
+}
+
 // listen on port 3000
-app.listen(port, () => console.info(`listening on port ${port}`));
+app.listen(port, () => console.info(`listening on port ${port}`))

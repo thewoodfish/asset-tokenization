@@ -19,9 +19,9 @@ mod assets {
         /// Players registered onchain and the games they're playing
         /// The players contains a mapping of the AccountId of the player and all it's accrued assets
         players: Mapping<AccountId, Vec<String>>,
-        /// Mapping of each game assets to its weight
+        /// Mapping of each game assets to its price
         /// The assets are usually prefixed with the name of the game e.g cod_firegun.
-        assets: Mapping<String, Weight>
+        assets: Mapping<String, Balance>,
     }
 
 
@@ -34,6 +34,12 @@ mod assets {
                 assets: Mapping::default(),
             }
         }
+
+        // register game, game assets
+        // register player
+        // swap
+        // fund
+        // purchase 
 
         /// Register a playing account onchain
         #[ink(message, payable)]

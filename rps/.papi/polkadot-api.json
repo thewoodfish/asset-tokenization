@@ -1,0 +1,14 @@
+{
+  "version": 0,
+  "descriptorPath": ".papi/descriptors",
+  "entries": {
+    "assets": {
+      "wsUrl": "ws://127.0.0.1:9944",
+      "metadata": ".papi/metadata/assets.scale",
+      "genesis": "0x4545454545454545454545454545454545454545454545454545454545454545"
+    }
+  },
+  "ink": {
+    "assets": ".papi/contracts/assets.json"
+  }
+}
