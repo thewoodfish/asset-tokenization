@@ -60,14 +60,14 @@ mod assets {
         }
 
         /// Remove units of an asset, without refunding or deducting money.
-        #[ink(message)]
+        #[ink(message, payable)]
         pub fn remove_asset(&mut self, asset: String, count: i64) {
             let account_id = self.env().caller();
             self.modify_assets(account_id, asset, count.neg(), false);
         }
 
         /// Gift an asset to a specific player without charging them.
-        #[ink(message)]
+        #[ink(message, payable)]
         pub fn gift_asset(&mut self, receiver: AccountId, asset: String, amount: i64) {
             self.modify_assets(receiver, asset, amount, false);
         }
