@@ -11,10 +11,29 @@
 
 <body>
     <section class="container">
-        <p>Game Chain Menu</p>
-        <button class="generate-btn">
-            Create a gaming account onchain
-        </button>
+        <div class="mb-40">
+            <p>Game Chain Menu</p>
+            <button class="generate-btn">
+                Create a gaming account onchain
+            </button>
+        </div>
+        <div>
+            <p>Register a game asset onchain</p>
+            <form>
+                <span>Game Name</span>
+                <input type="text" placeholder="Name of game" class="game-input">
+                <br>
+                <span>Asset</span>
+                <input type="text" placeholde="Asset name e.g magic portion" class="game-input">
+                <br>
+                <span>Price</span>
+                <input type="number" class="game-input">
+
+                <button class="submit-asset-btn" onclick="return false">
+                    Register game asset
+                </button>
+            </form>
+        </div>
     </section>
     <div id="toast" class="toast"></div>
     <script src="js/script.js" defer></script>

@@ -65,10 +65,43 @@ document.body.addEventListener(
       })
         .then(async res => {
           await res.json().then(res => {
-            
+
           });
         })
+    } else if (e.classList.contains("submit-asset-btn")) {
+      let allFilled = true;
+      let gameInputs = qsa(".game-input");
+      let assetData = [];
 
+      gameInputs.forEach(e => {
+        assetData.push(e.value);
+        if (!e.value)
+          allFilled = false;
+      });
+
+
+
+      if (allFilled) {
+        // Update button label
+        updateText(e, "Registering...");
+        e.disabled = true;
+        fetch("/register-asset", {
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            "data": assetData.join("$$$")
+          })
+        })
+          .then(async res => {
+            await res.json().then(res => {
+
+            });
+          })
+      } else {
+        toast(`❌ Please fill out all fields`);
+      }
     }
   }, false);
 
