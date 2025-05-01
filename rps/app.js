@@ -81,11 +81,11 @@ app.get('', (req, res) => {
 
 // Chain Menu
 app.get('/chain-menu', (req, res) => {
-    res.render('chain-menu', {});
+    res.render('chain-x', {});
 });
 
-app.get('/gen-keys', (req, res) => {
-    createAccount(res);
+app.post('/gen-keys', (req, res) => {
+    createAccount(req.body, res);
 });
 
 app.get('/register-asset', (req, res) => {
@@ -94,7 +94,7 @@ app.get('/register-asset', (req, res) => {
 
 
 // Create a new account on chain
-async function createAccount(res) {
+async function createAccount(req, res) {
     try {
         // First generate the mnemonics and account
         const mnemonic = mnemonicGenerate();
@@ -103,10 +103,8 @@ async function createAccount(res) {
         const createAccount = assetVerse.message("register_player")
         const data = createAccount.encode();
 
-        console.log(alice.address);
-
         const response = await typedApi.apis.ContractsApi.call(
-            alice.address,
+            alice.address /* user.address */,
             CONTRACT_INSTANCE,
             100_000_000n,
             undefined,
@@ -114,8 +112,6 @@ async function createAccount(res) {
             data,
         )
 
-
-        console.log("dsibfnds");
         if (response.result.success) {
             console.log(createAccount.decode(response.result.value));
             console.log(assetVerse.event.filter(CONTRACT_INSTANCE, response.events));

@@ -38,11 +38,12 @@ mod assets {
         }
 
         /// Register a playing account
+        /// Players are endowed with a 1M units of tokens at registration
         #[ink(message, payable)]
         pub fn register_player(&mut self) {
             // Get the players account
             let account_id = self.env().caller();
-            self.players.insert(&account_id, &(0, Vec::<String>::new()));
+            self.players.insert(&account_id, &(1_000_000, Vec::<String>::new()));
         }
 
         /// Register an asset

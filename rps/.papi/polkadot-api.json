@@ -5,7 +5,7 @@
     "assets": {
       "wsUrl": "ws://127.0.0.1:9944",
       "metadata": ".papi/metadata/assets.scale",
-      "genesis": "0x4545454545454545454545454545454545454545454545454545454545454545"
+      "genesis": "0x59d2f7550c404aca1cecd7ef262451575b5e0058b514a7a43ac66297dd570042"
     }
   },
   "ink": {
