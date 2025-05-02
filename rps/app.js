@@ -52,7 +52,7 @@ const client = createClient(
 const typedApi = client.getTypedApi(assets);
 const assetVerse = getInkClient(contracts.assets)
 
-const CONTRACT_INSTANCE = "5DzZpSimu5SChVdAm2nfT3V2AMHoY1iFZj6bqGXKnivuuirz";
+const CONTRACT_INSTANCE = "5G19nGcPGPx2RihrokRHbeKPh6LAkAtoUfnQVAenFq4WMdtG";
 const keyring = new Keyring({ type: 'sr25519' });
 
 // You optionally can make sure the hash hasn't changed by checking compatibility
@@ -88,20 +88,40 @@ app.post('/gen-keys', (req, res) => {
     createAccount(req.body, res);
 });
 
-app.get('/register-asset', (req, res) => {
+app.post('/register-asset', (req, res) => {
     registerAsset(req.body, res);
 });
 
+app.get('/get-assets', (req, res) => {
+    fetchAssets(res);
+});
 
-// Create a new account on chain
+// Fetch available games and their assets
+async function fetchAssets(res) {
+    const storage = await typedApi.apis.ContractsApi.get_storage(
+        CONTRACT_INSTANCE,
+        assetVerse.storage().encode(),
+    )
+    console.log(
+        "storage",
+        storage.success ? storage.value?.asHex() : storage.value,
+    )
+
+    if (storage.success && storage.value) {
+        const decoded = assetVerse.storage().decode(storage.value)
+        console.log("storage nft", decoded)
+    }
+}
+
+// Create a new account on chain 
 async function createAccount(req, res) {
     try {
         // First generate the mnemonics and account
         const mnemonic = mnemonicGenerate();
         const user = keyring.createFromUri(mnemonic, 'sr25519');
 
-        const createAccount = assetVerse.message("register_player")
-        const data = createAccount.encode();
+        const createAccount = assetVerse.message("register_player");
+        const data = createAccount.encode({ name: req.data });
 
         const response = await typedApi.apis.ContractsApi.call(
             alice.address /* user.address */,
@@ -146,8 +166,59 @@ async function createAccount(req, res) {
 }
 
 // Register asset onchain
-async function register_asset(req, res) {
-    
+async function registerAsset(req, res) {
+    try {
+        // Get data
+        let req_data = req.data.split("$$$");
+
+        // pub fn register_asset(&mut self, name: String, price: Balance) {
+        //     // Insert into storage
+        //     self.assets.insert(&name, &price);
+        // }
+
+        // Asset name (prefixed by game name)
+        let asset_info = [req_data[0], req_data[1]];
+        let asset_name = asset_info.join("_");
+
+        // Set up request
+        const registerAsset = assetVerse.message("register_asset");
+        const data = registerAsset.encode({ name: asset_name, price: BigInt(req_data[2]) });
+
+        const response = await typedApi.apis.ContractsApi.call(
+            alice.address /* user.address */,
+            CONTRACT_INSTANCE,
+            100_000_000n,
+            undefined,
+            undefined,
+            data,
+        )
+
+        if (response.result.success) {
+            console.log(registerAsset.decode(response.result.value));
+            console.log(assetVerse.event.filter(CONTRACT_INSTANCE, response.events));
+
+            console.log("tx events", assetVerse.event.filter(CONTRACT_INSTANCE, response.events));
+
+            return res.send({
+                data: "Asset successfully registered!",
+                error: false
+            })
+
+        } else {
+            console.log(
+                response.result.value,
+                response.gas_consumed,
+                response.gas_required,
+            );
+
+            throw new Error();
+        }
+    } catch (e) {
+        return res.send({
+            data: "Error registering assets",
+            error: false
+        })
+    }
 }
 
 // listen on port 3000

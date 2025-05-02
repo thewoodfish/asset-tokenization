@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0x5390c1c3be750cd74501b63724733c452219950e8aa9c82950fb175c4f8c635a",
+    "hash": "0x65c6c2c81fb7921dc2243ca93785a39ee5c05aeb6764bdd097bca5bb8faf6837",
     "language": "ink! 5.1.1",
     "compiler": "rustc 1.87.0-nightly",
     "build_info": {
@@ -52,25 +52,25 @@
         "displayName": [
           "Balance"
         ],
-        "type": 0
+        "type": 1
       },
       "blockNumber": {
         "displayName": [
           "BlockNumber"
         ],
-        "type": 21
+        "type": 23
       },
       "chainExtension": {
         "displayName": [
           "ChainExtension"
         ],
-        "type": 22
+        "type": 24
       },
       "hash": {
         "displayName": [
           "Hash"
         ],
-        "type": 19
+        "type": 21
       },
       "maxEventTopics": 4,
       "staticBufferSize": 16384,
@@ -78,7 +78,7 @@
         "displayName": [
           "Timestamp"
         ],
-        "type": 20
+        "type": 22
       }
     },
     "events": [],
@@ -91,10 +91,21 @@
     },
     "messages": [
       {
-        "args": [],
+        "args": [
+          {
+            "label": "name",
+            "type": {
+              "displayName": [
+                "String"
+              ],
+              "type": 0
+            }
+          }
+        ],
         "default": false,
         "docs": [
-          " Register a playing account"
+          " Register a playing account",
+          " Players are endowed with 1M units of tokens at registration"
         ],
         "label": "register_player",
         "mutates": true,
@@ -109,6 +120,24 @@
         "selector": "0x44c9d826"
       },
       {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Get players"
+        ],
+        "label": "get_player",
+        "mutates": true,
+        "payable": true,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 18
+        },
+        "selector": "0xdee6c4bb"
+      },
+      {
         "args": [
           {
             "label": "name",
@@ -116,7 +145,7 @@
               "displayName": [
                 "String"
               ],
-              "type": 2
+              "type": 0
             }
           },
           {
@@ -125,7 +154,7 @@
               "displayName": [
                 "Balance"
               ],
-              "type": 0
+              "type": 1
             }
           }
         ],
@@ -153,7 +182,7 @@
               "displayName": [
                 "String"
               ],
-              "type": 2
+              "type": 0
             }
           },
           {
@@ -162,7 +191,7 @@
               "displayName": [
                 "i64"
               ],
-              "type": 18
+              "type": 20
             }
           }
         ],
@@ -190,7 +219,7 @@
               "displayName": [
                 "String"
               ],
-              "type": 2
+              "type": 0
             }
           },
           {
@@ -199,7 +228,7 @@
               "displayName": [
                 "i64"
               ],
-              "type": 18
+              "type": 20
             }
           }
         ],
@@ -236,7 +265,7 @@
               "displayName": [
                 "String"
               ],
-              "type": 2
+              "type": 0
             }
           },
           {
@@ -245,7 +274,7 @@
               "displayName": [
                 "i64"
               ],
-              "type": 18
+              "type": 20
             }
           }
         ],
@@ -285,7 +314,7 @@
                               "ty": 0
                             }
                           },
-                          "name": "0"
+                          "name": "name"
                         },
                         {
                           "layout": {
@@ -294,10 +323,19 @@
                               "ty": 1
                             }
                           },
-                          "name": "1"
+                          "name": "balance"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x17e8cef2",
+                              "ty": 2
+                            }
+                          },
+                          "name": "assets"
                         }
                       ],
-                      "name": "(A, B)"
+                      "name": "Player"
                     }
                   },
                   "root_key": "0x17e8cef2",
@@ -312,7 +350,7 @@
                   "layout": {
                     "leaf": {
                       "key": "0x040d27f2",
-                      "ty": 0
+                      "ty": 1
                     }
                   },
                   "root_key": "0x040d27f2",
@@ -334,7 +372,7 @@
       "id": 0,
       "type": {
         "def": {
-          "primitive": "u128"
+          "primitive": "str"
         }
       }
     },
@@ -342,9 +380,7 @@
       "id": 1,
       "type": {
         "def": {
-          "sequence": {
-            "type": 2
-          }
+          "primitive": "u128"
         }
       }
     },
@@ -352,7 +388,9 @@
       "id": 2,
       "type": {
         "def": {
-          "primitive": "str"
+          "sequence": {
+            "type": 0
+          }
         }
       }
     },
@@ -427,11 +465,31 @@
       "id": 7,
       "type": {
         "def": {
-          "tuple": [
-            0,
-            1
-          ]
-        }
+          "composite": {
+            "fields": [
+              {
+                "name": "name",
+                "type": 0,
+                "typeName": "String"
+              },
+              {
+                "name": "balance",
+                "type": 1,
+                "typeName": "Balance"
+              },
+              {
+                "name": "assets",
+                "type": 2,
+                "typeName": "Vec<String>"
+              }
+            ]
+          }
+        },
+        "path": [
+          "assets",
+          "assets",
+          "Player"
+        ]
       }
     },
     {
@@ -506,11 +564,11 @@
         "params": [
           {
             "name": "K",
-            "type": 2
+            "type": 0
           },
           {
             "name": "V",
-            "type": 0
+            "type": 1
           },
           {
             "name": "KeyType",
@@ -576,7 +634,7 @@
               {
                 "name": "players",
                 "type": 3,
-                "typeName": "<Mapping<AccountId, (Balance, Vec<String>)> as::ink::storage::\ntraits::AutoStorableHint<::ink::storage::traits::ManualKey<\n4073646103u32, ()>,>>::Type"
+                "typeName": "<Mapping<AccountId, Player> as::ink::storage::traits::\nAutoStorableHint<::ink::storage::traits::ManualKey<4073646103u32,\n()>,>>::Type"
               },
               {
                 "name": "assets",
@@ -658,12 +716,87 @@
       "id": 18,
       "type": {
         "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 19
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 17
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 19
+          },
+          {
+            "name": "E",
+            "type": 17
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 19,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "None"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 7
+                  }
+                ],
+                "index": 1,
+                "name": "Some"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 7
+          }
+        ],
+        "path": [
+          "Option"
+        ]
+      }
+    },
+    {
+      "id": 20,
+      "type": {
+        "def": {
           "primitive": "i64"
         }
       }
     },
     {
-      "id": 19,
+      "id": 21,
       "type": {
         "def": {
           "composite": {
@@ -683,7 +816,7 @@
       }
     },
     {
-      "id": 20,
+      "id": 22,
       "type": {
         "def": {
           "primitive": "u64"
@@ -691,7 +824,7 @@
       }
     },
     {
-      "id": 21,
+      "id": 23,
       "type": {
         "def": {
           "primitive": "u32"
@@ -699,7 +832,7 @@
       }
     },
     {
-      "id": 22,
+      "id": 24,
       "type": {
         "def": {
           "variant": {}

@@ -12,19 +12,40 @@ mod assets {
         storage::Mapping,
     };
 
+    /// The main contract for managing game players and in-game assets.
     #[derive(Default)]
     #[ink(storage)]
-    /// A contract module for managing players and in-game assets.
     pub struct Assets {
-        /// Registered players and their associated data.
-        /// Each entry maps a player's `AccountId` to:
-        /// - Their current balance.
-        /// - A list of owned assets, represented as strings (e.g., "cod_firegun_9" where `9` is the quantity).
-        players: Mapping<AccountId, (Balance, Vec<String>)>,
+        /// Mapping from a player's `AccountId` to their `Player` data.
+        ///
+        /// Each player has:
+        /// - A `name`: their in-game identity.
+        /// - A `balance`: their current token balance.
+        /// - A list of `assets`: strings representing assets with quantities (e.g., "cod_firegun_9").
+        players: Mapping<AccountId, Player>,
 
-        /// Available game assets and their corresponding prices.
-        /// Keys are asset identifiers (e.g., "cod_firegun") and values are their price in the contract's currency.
+        /// Mapping of available in-game assets to their price in tokens.
+        ///
+        /// Key: asset identifier (e.g., "cod_firegun").
+        /// Value: cost of the asset in the game's native currency.
         assets: Mapping<String, Balance>,
+    }
+
+    /// Data structure representing an individual player.
+    #[derive(Default)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+    pub struct Player {
+        /// The player’s chosen in-game name.
+        name: String,
+
+        /// Player’s available token balance.
+        balance: Balance,
+
+        /// List of owned assets with quantity encoded in the string (e.g., "cod_firegun_9").
+        ///
+        /// This flat structure allows flexible handling of asset counts without a custom struct.
+        assets: Vec<String>,
     }
 
     impl Assets {
@@ -38,12 +59,27 @@ mod assets {
         }
 
         /// Register a playing account
-        /// Players are endowed with a 1M units of tokens at registration
+        /// Players are endowed with 1M units of tokens at registration
         #[ink(message, payable)]
-        pub fn register_player(&mut self) {
-            // Get the players account
+        pub fn register_player(&mut self, name: String) {
             let account_id = self.env().caller();
-            self.players.insert(&account_id, &(1_000_000, Vec::<String>::new()));
+
+            // Create a new player with default values
+            let player = Player {
+                name,
+                balance: 1_000_000,
+                assets: Vec::new(),
+            };
+
+            self.players.insert(&account_id, &player);
+        }
+
+        /// Get players
+        #[ink(message, payable)]
+        pub fn get_player(&mut self) -> Option<Player> {
+            let account_id = self.env().caller();
+
+            self.players.get(&account_id)
         }
 
         /// Register an asset
@@ -92,30 +128,28 @@ mod assets {
             };
 
             // Get player data
-            if let Some((balance, mut current_assets)) = self.players.get(&account_id) {
+            if let Some(mut player) = self.players.get(&account_id) {
                 // Check if enough balance
-                if should_pay && balance < asset_price {
+                if should_pay && player.balance < asset_price {
                     return;
                 }
 
-                let new_balance = if should_pay {
-                    balance - asset_price
-                } else {
-                    balance
-                };
+                if should_pay {
+                    player.balance -= asset_price;
+                }
 
                 let asset_prefix = asset.clone(); // e.g., cod_firegun
                 let mut found = false;
 
-                for i in 0..current_assets.len() {
-                    if current_assets[i].starts_with(&asset_prefix) {
-                        let parts: Vec<&str> = current_assets[i].split('_').collect();
+                for i in 0..player.assets.len() {
+                    if player.assets[i].starts_with(&asset_prefix) {
+                        let parts: Vec<&str> = player.assets[i].split('_').collect();
                         if parts.len() == 3 {
                             if let Ok(current_count) = parts[2].parse::<i64>() {
                                 let new_count = current_count + count_change;
 
                                 if new_count <= 0 {
-                                    current_assets.remove(i);
+                                    player.assets.remove(i);
                                 } else {
                                     let mut new_asset = String::from(parts[0]);
                                     new_asset.push('_');
@@ -123,7 +157,7 @@ mod assets {
                                     new_asset.push('_');
                                     new_asset.push_str(&new_count.to_string());
 
-                                    current_assets[i] = new_asset;
+                                    player.assets[i] = new_asset;
                                 }
 
                                 found = true;
@@ -138,11 +172,10 @@ mod assets {
                     asset_string.push('_');
                     asset_string.push_str(&count_change.to_string());
 
-                    current_assets.push(asset_string);
+                    player.assets.push(asset_string);
                 }
 
-                self.players
-                    .insert(account_id, &(new_balance, current_assets));
+                self.players.insert(&account_id, &player);
             }
         }
     }
