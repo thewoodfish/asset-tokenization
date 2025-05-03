@@ -101,10 +101,10 @@ document.body.addEventListener(
       });
 
       if (allFilled) {
-         // Update button label
-         hide(".reg-assets-btn");
-         appear(".reg-assets-btn-1");
-         
+        // Update button label
+        hide(".reg-assets-btn");
+        appear(".reg-assets-btn-1");
+
         fetch("/register-asset", {
           method: "post",
           headers: {
@@ -115,24 +115,14 @@ document.body.addEventListener(
           }),
         }).then(async (res) => {
           await res.json().then((res) => {
+            hide(".reg-assets-btn-1");
+            appear(".reg-assets-btn");
             toast(res.data);
-           });
+          });
         });
       } else {
         toast("Please input all fields");
       }
-    } else if (e.classList.contains("buy-game-assets")) {
-      // Fetch game assets
-      fetch("/get-assets", {
-        method: "get",
-        headers: {
-          "Content-Type": "application/json",
-        }
-      }).then(async (res) => {
-        await res.json().then((res) => {
-          
-         });
-      });
     } else if (e.classList.contains("list-item-x")) {
       // Tab toggling
       qsa(".list-item-x").forEach((j) => {
@@ -177,6 +167,263 @@ document.body.addEventListener(
           j.classList.remove("hidden");
         }
       });
+
+      if (e.classList.contains("buy-game-assets")) {
+        // Fetch games
+        fetch("/get-games", {
+          method: "get",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        }).then(async (res) => {
+          await res.json().then((res) => {
+            if (!res.error) {
+              let games = res.data.split("$");
+              qs("#games").innerHTML = "<option selected>Select games</option>";
+
+
+              games.forEach((e) => {
+                if (e.length > 1) {
+                  qs("#games").innerHTML += `<option value='${e}'>${e}</option>`
+                }
+              });
+            } else {
+              toast("Could not fetch games");
+            }
+          });
+        });
+      }
+
+      if (e.classList.contains("gift-game-assets")) {
+        // Fetch games
+        fetch("/get-games", {
+          method: "get",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        }).then(async (res) => {
+          await res.json().then((res) => {
+            if (!res.error) {
+              let games = res.data.split("$");
+              qs("#gift-game").innerHTML = "<option selected>Select games</option>";
+
+
+              games.forEach((e) => {
+                if (e.length > 1) {
+                  qs("#gift-game").innerHTML += `<option value='${e}'>${e}</option>`
+                }
+              });
+            } else {
+              toast("Could not fetch games");
+            }
+          });
+        });
+      }
+
+      if (e.classList.contains("gift-game-assets")) {
+        // Fetch games
+        fetch("/get-games", {
+          method: "get",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        }).then(async (res) => {
+          await res.json().then((res) => {
+            if (!res.error) {
+              let games = res.data.split("$");
+              qs("#gift-game").innerHTML = "<option selected>Select games</option>";
+
+
+              games.forEach((e) => {
+                if (e.length > 1) {
+                  qs("#gift-game").innerHTML += `<option value='${e}'>${e}</option>`
+                }
+              });
+            } else {
+              toast("Could not fetch games");
+            }
+          });
+        });
+      }
+
+      if (e.classList.contains("trade-game-asset")) {
+        // Fetch games
+        fetch("/get-games", {
+          method: "get",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        }).then(async (res) => {
+          await res.json().then((res) => {
+            if (!res.error) {
+              let games = res.data.split("$");
+              qs(".select-game-card").innerHTML = "<option selected>Select games</option>";
+              qs(".select-game-card-1").innerHTML = "<option selected>Select games</option>";
+
+
+              games.forEach((e) => {
+                if (e.length > 1) {
+                  qs(".select-game-card").innerHTML += `<option value='${e}'>${e}</option>`
+                  qs(".select-game-card-1").innerHTML += `<option value='${e}'>${e}</option>`
+                }
+              });
+            } else {
+              toast("Could not fetch games");
+            }
+          });
+        });
+      }
+    } else if (e.classList.contains("buy-asset-btn")) {
+      let allFilled = true;
+      let gameInputs = qsa(".buy-asset-field");
+      let assetData = [];
+
+      gameInputs.forEach((e) => {
+        assetData.push(e.value);
+        if (!e.value) allFilled = false;
+      });
+
+      if (allFilled) {
+        // Update button label
+        hide(".buy-asset-btn");
+        appear(".buy-asset-btn-1");
+
+        fetch("/buy-asset", {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data: assetData.join("$$$"),
+          }),
+        }).then(async (res) => {
+          await res.json().then((res) => {
+            hide(".buy-asset-btn-1");
+            appear(".buy-asset-btn");
+            toast(res.data);
+          });
+        });
+      } else {
+        toast("Please input all fields");
+      }
+    } else if (e.classList.contains("gift-asset-btn")) {
+      let allFilled = true;
+      let gameInputs = qsa(".gift-form");
+      let assetData = [];
+
+      gameInputs.forEach((e) => {
+        assetData.push(e.value);
+        if (!e.value) allFilled = false;
+      });
+
+      if (allFilled) {
+        // Update button label
+        hide(".gift-asset-btn");
+        appear(".gift-asset-btn-1");
+
+        fetch("/gift-asset", {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data: assetData.join("$$$"),
+          }),
+        }).then(async (res) => {
+          await res.json().then((res) => {
+            hide(".gift-asset-btn-1");
+            appear(".gift-asset-btn");
+            toast(res.data);
+          });
+        });
+      } else {
+        toast("Please input all fields");
+      }
+    } else if (e.classList.contains("xchange-btn")) {
+      let allFilled = true;
+      let gameInputs = qsa(".xchange-form");
+      let assetData = [];
+
+      gameInputs.forEach((e) => {
+        assetData.push(e.value);
+        if (!e.value) allFilled = false;
+      });
+
+      if (allFilled) {
+        // Update button label
+        hide(".xchange-btn");
+        appear(".xchange-btn-1");
+
+        fetch("/swap-assets", {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data: assetData.join("$$$"),
+          }),
+        }).then(async (res) => {
+          await res.json().then((res) => {
+            hide(".xchange-btn-1");
+            appear(".xchange-btn");
+            toast(res.data);
+          });
+        });
+      } else {
+        toast("Please input all fields");
+      }
+    } else if (e.classList.contains("auth-btn-x")) {
+      let keys = qs(".auth-keys");
+
+      if (keys.value && keys.value.split(" ").length == 12) {
+        // Update button label
+        hide(".auth-btn-x");
+        appear(".auth-btn-x-1");
+
+        fetch("/auth", {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            keys: keys.value,
+          }),
+        }).then(async (res) => {
+          await res.json().then((res) => {
+            hide(".auth-btn-x-1");
+            appear(".auth-btn-x");
+            toast(res.data);
+          });
+        });
+      } else {
+        toast("Please enter your 12 seed phrase");
+      }
+    } else if (e.classList.contains("auth-btn-x")) {
+      let keys = qs(".auth-keys");
+
+      if (keys.value && keys.value.split(" ").length == 12) {
+        // Update button label
+        hide(".auth-btn-x");
+        appear(".auth-btn-x-1");
+
+        fetch("/auth", {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            keys: keys.value,
+          }),
+        }).then(async (res) => {
+          await res.json().then((res) => {
+            hide(".auth-btn-x-1");
+            appear(".auth-btn-x");
+            toast(res.data);
+          });
+        });
+      } else {
+        toast("Please enter your 12 seed phrase");
+      }
     } else if (e.classList.contains("copy-to-clipboard")) {
       // copy to clipboard
       let copy_text = qs(`.${e.dataset.target}`).innerText;
@@ -195,6 +442,116 @@ document.body.addEventListener(
   },
   false
 );
+
+document.body.addEventListener(
+  "change",
+  (e) => {
+    e = e.target;
+    if (e.classList.contains("games-selector")) {
+      fetch("/get-assets", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: e.value
+        }),
+      }).then(async (res) => {
+        await res.json().then((res) => {
+          if (!res.error) {
+            let games = res.data.split("$");
+            qs("#assets").innerHTML = "<option selected>Select asset</option>";
+
+
+            games.forEach((e) => {
+              if (e.length > 1) {
+                qs("#assets").innerHTML += `<option value='${e}'>${e}</option>`
+              }
+            });
+          } else {
+            toast("Could not fetch game assets");
+          }
+        });
+      });
+    } else if (e.classList.contains("gift-selector")) {
+      fetch("/get-assets", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: e.value
+        }),
+      }).then(async (res) => {
+        await res.json().then((res) => {
+          if (!res.error) {
+            let games = res.data.split("$");
+            qs("#gift-asset").innerHTML = "<option selected>Select asset</option>";
+
+
+            games.forEach((e) => {
+              if (e.length > 1) {
+                qs("#gift-asset").innerHTML += `<option value='${e}'>${e}</option>`
+              }
+            });
+          } else {
+            toast("Could not fetch game assets");
+          }
+        });
+      });
+    } else if (e.classList.contains("select-game-card")) {
+      fetch("/get-assets", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: e.value
+        }),
+      }).then(async (res) => {
+        await res.json().then((res) => {
+          if (!res.error) {
+            let games = res.data.split("$");
+            qs(".select-asset-card").innerHTML = "<option selected>Select asset</option>";
+
+            games.forEach((e) => {
+              if (e.length > 1) {
+                qs(".select-asset-card").innerHTML += `<option value='${e}'>${e}</option>`
+              }
+            });
+          } else {
+            toast("Could not fetch game assets");
+          }
+        });
+      });
+    } else if (e.classList.contains("select-game-card-1")) {
+      fetch("/get-assets", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: e.value
+        }),
+      }).then(async (res) => {
+        await res.json().then((res) => {
+          if (!res.error) {
+            let games = res.data.split("$");
+            qs(".select-asset-card-1").innerHTML = "<option selected>Select asset</option>";
+
+            games.forEach((e) => {
+              if (e.length > 1) {
+                qs(".select-asset-card-1").innerHTML += `<option value='${e}'>${e}</option>`
+              }
+            });
+          } else {
+            toast("Could not fetch game assets");
+          }
+        });
+      });
+    }
+  },
+  false);
 
 function toast(message, duration = 3000) {
   qs(".toast-msg").innerText = message;

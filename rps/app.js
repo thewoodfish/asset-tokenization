@@ -24,54 +24,41 @@ app.use('/img', express.static(__dirname + 'public/img'));
 app.set('views', './views');
 app.set('view engine', 'ejs');
 
-// Local imports
-import * as util from "./utility.js";
-// import * as chain from "./mediator.cjs.js";
-
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 
 
-// Blockchain essentials
+// blockchain essentials
+import { ApiPromise, WsProvider } from '@polkadot/api';
+import { ContractPromise } from '@polkadot/api-contract';
 import { mnemonicGenerate, cryptoWaitReady, blake2AsHex, xxhashAsHex } from '@polkadot/util-crypto';
 import { Keyring } from '@polkadot/keyring';
-import { contracts, MultiAddress, assets } from "@polkadot-api/descriptors"
-import { getPolkadotSigner } from "polkadot-api/signer"
-import { getInkClient } from "polkadot-api/ink"
-import { createClient } from "polkadot-api"
-import { withPolkadotSdkCompat } from "polkadot-api/polkadot-sdk-compat"
-import { getWsProvider } from "polkadot-api/ws-provider/web"
 
-const client = createClient(
-    withPolkadotSdkCompat(
-        getWsProvider("ws://127.0.0.1:9944"),
-    ),
-);
 
-const typedApi = client.getTypedApi(assets);
-const assetVerse = getInkClient(contracts.assets)
-
-const CONTRACT_INSTANCE = "5G19nGcPGPx2RihrokRHbeKPh6LAkAtoUfnQVAenFq4WMdtG";
+// blockchain config
+const contract_addr = "5GEQhvys8C5D2DnV7UPa8S7SMWXoXTSUrvmcWZHTBZtUDGrR";
+const wsProvider = new WsProvider('ws://127.0.0.1:9944');
+const api = await ApiPromise.create({ provider: wsProvider });
+const contract = new ContractPromise(api, meta.metadata(), contract_addr);
 const keyring = new Keyring({ type: 'sr25519' });
 
-// You optionally can make sure the hash hasn't changed by checking compatibility
-// if (!(await contract.isCompatible())) {
-//     throw new Error("Contract has changed");
-// }
+// contract API import
+const chain = await import('./contract.cjs');
+
+// contract metadata import
+import * as meta from "./metadata.js";
+import { Console } from "console";
 
 // test accounts
 let alice = {};
 let bob = {};
-let alice_signer = {};
 
 // wait 5 secs for the wasm init
 setTimeout(async () => {
     await cryptoWaitReady().then(() => {
         alice = keyring.addFromUri('//Alice');    // for running tests
         bob = keyring.addFromUri('//Bob');    // for running tests
-
-        alice_signer = getPolkadotSigner(alice.publicKey, "Sr25519", alice.sign);
     });
 }, 5000);
 
@@ -85,76 +72,54 @@ app.get('/chain-menu', (req, res) => {
 });
 
 app.post('/gen-keys', (req, res) => {
-    createAccount(req.body, res);
+    registerPlayer(req.body, res);
 });
 
 app.post('/register-asset', (req, res) => {
     registerAsset(req.body, res);
 });
 
-app.get('/get-assets', (req, res) => {
-    fetchAssets(res);
+app.get('/get-games', (_req, res) => {
+    fetchGames(res);
 });
 
-// Fetch available games and their assets
-async function fetchAssets(res) {
-    const storage = await typedApi.apis.ContractsApi.get_storage(
-        CONTRACT_INSTANCE,
-        assetVerse.storage().encode(),
-    )
-    console.log(
-        "storage",
-        storage.success ? storage.value?.asHex() : storage.value,
-    )
+app.post('/get-assets', (req, res) => {
+    fetchAssets(req.body, res);
+});
 
-    if (storage.success && storage.value) {
-        const decoded = assetVerse.storage().decode(storage.value)
-        console.log("storage nft", decoded)
-    }
-}
+app.post('/buy-asset', (req, res) => {
+    buyAsset(req.body, res);
+});
+
+app.post('/auth', (req, res) => {
+    authAccount(req.body, res);
+});
+
+app.post('/gift-asset', (req, res) => {
+    giftAsset(req.body, res);
+});
+
+app.post('/swap-assets', (req, res) => {
+    swapAssets(req.body, res);
+});
 
 // Create a new account on chain 
-async function createAccount(req, res) {
+async function registerPlayer(req, res) {
     try {
         // First generate the mnemonics and account
         const mnemonic = mnemonicGenerate();
         const user = keyring.createFromUri(mnemonic, 'sr25519');
 
-        const createAccount = assetVerse.message("register_player");
-        const data = createAccount.encode({ name: req.data });
-
-        const response = await typedApi.apis.ContractsApi.call(
-            alice.address /* user.address */,
-            CONTRACT_INSTANCE,
-            100_000_000n,
-            undefined,
-            undefined,
-            data,
-        )
-
-        if (response.result.success) {
-            console.log(createAccount.decode(response.result.value));
-            console.log(assetVerse.event.filter(CONTRACT_INSTANCE, response.events));
-
-            console.log("tx events", assetVerse.event.filter(CONTRACT_INSTANCE, response.events));
-
+        // Call contract to register account
+        await chain.registerPlayer(api, contract, /* user */bob, req.data).then(() => {
+            // Return the keys to the user for next auth
             return res.send({
                 data: {
                     seed: mnemonic,
-                    ss58_addr: user.address
                 },
                 error: false
             })
-
-        } else {
-            console.log(
-                response.result.value,
-                response.gas_consumed,
-                response.gas_required,
-            );
-
-            throw new Error();
-        }
+        });
     } catch (e) {
         return res.send({
             data: {
@@ -169,56 +134,133 @@ async function createAccount(req, res) {
 async function registerAsset(req, res) {
     try {
         // Get data
-        let req_data = req.data.split("$$$");
+        const data = req.data.split("$$$");
 
-        // pub fn register_asset(&mut self, name: String, price: Balance) {
-        //     // Insert into storage
-        //     self.assets.insert(&name, &price);
-        // }
-
-        // Asset name (prefixed by game name)
-        let asset_info = [req_data[0], req_data[1]];
-        let asset_name = asset_info.join("_");
-
-        // Set up request
-        const registerAsset = assetVerse.message("register_asset");
-        const data = registerAsset.encode({ name: asset_name, price: BigInt(req_data[2]) });
-
-        const response = await typedApi.apis.ContractsApi.call(
-            alice.address /* user.address */,
-            CONTRACT_INSTANCE,
-            100_000_000n,
-            undefined,
-            undefined,
-            data,
-        )
-
-        if (response.result.success) {
-            console.log(registerAsset.decode(response.result.value));
-            console.log(assetVerse.event.filter(CONTRACT_INSTANCE, response.events));
-
-            console.log("tx events", assetVerse.event.filter(CONTRACT_INSTANCE, response.events));
-
+        // Call contract to register asset
+        await chain.registerAsset(api, contract, /* user */bob, data[0] + "$", data[1] + "$", BigInt(data[2])).then(() => {
+            // Return the keys to the user for next auth
             return res.send({
-                data: "Asset successfully registered!",
+                data: "Asset successfully registered",
                 error: false
             })
-
-        } else {
-            console.log(
-                response.result.value,
-                response.gas_consumed,
-                response.gas_required,
-            );
-
-            throw new Error();
-        }
+        });
     } catch (e) {
         return res.send({
             data: "Error registering assets",
             error: false
         })
     }
+}
+
+// #[ink(message, payable)]
+// pub fn get_assets(&mut self, game: String) -> Option<Vec<(String, Balance)>> {
+//     self.assets.get(&game)
+// }
+
+// Fetch games
+async function fetchGames(res) {
+    // We get all the games first
+    await chain.fetchGames(api, contract, /*user */ bob).then(data => {
+        // Decode data
+        data = filterNonStringChars(decodeContractData(data));
+
+        return res.send({
+            data,
+            error: false
+        })
+    });
+}
+
+
+// Fetch games
+async function fetchAssets(req, res) {
+    // We get all the games first
+    await chain.fetchAssets(api, contract, /*user */ bob, req.data.trim() + "$").then(data => {
+        // Decode data
+        data = filterNonStringChars(decodeContractData(data));
+        return res.send({
+            data,
+            error: false
+        })
+    });
+}
+
+// Purchase asset
+async function buyAsset(req, res) {
+    try {
+        // Get data
+        const data = req.data.split("$$$");
+
+        // Call contract to purchase asset
+        await chain.buyAsset(api, contract, /* user */bob, data[0].trim() + "$", data[1] + "$", parseInt(data[2])).then(() => {
+            // Return the keys to the user for next auth
+            return res.send({
+                data: "Asset successfully bought!",
+                error: false
+            })
+        });
+    } catch (e) {
+        return res.send({
+            data: "Asset purchase failed. Please try again later",
+            error: false
+        })
+    }
+}
+
+// Gift asset to someone else
+async function giftAsset(req, res) {
+    try {
+        // Get data
+        const data = req.data.split("$$$");
+
+        // Call contract to buy asset
+        await chain.giftAsset(api, contract, /* user */bob, data[3], data[1] + "$", parseInt(data[2])).then(() => {
+            // Return the keys to the user for next auth
+            return res.send({
+                data: "Asset gifted successfully!",
+                error: false
+            })
+        });
+    } catch (e) {
+        return res.send({
+            data: "Gifting failed. Please try again later",
+            error: false
+        })
+    }
+}
+
+
+// Swap assets across games
+async function swapAssets(req, res) {
+    try {
+        // Get data
+        const data = req.data.split("$$$");
+
+        // Call contract to buy asset
+        await chain.swapAsset(api, contract, /* user */bob, data[1] + "$", parseInt(data[2]), data[4] + "$", parseInt(data[5])).then(() => {
+            // Return the keys to the user for next auth
+            return res.send({
+                data: "Asset swaped successfully!",
+                error: false
+            })
+        });
+    } catch (e) {
+        return res.send({
+            data: "Swapping failed. Please try again later",
+            error: false
+        })
+    }
+}
+
+
+function filterNonStringChars(str) {
+    return str.replace(/[^$a-zA-Z0-9 \-~]/g, "");
+}
+
+function decodeContractData(data) {
+    const hexString = data.Ok.data.slice(2);
+    const buffer = Buffer.from(hexString.slice(2), 'hex');
+    return buffer.toString().trim();
 }
 
 // listen on port 3000

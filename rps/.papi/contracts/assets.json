@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0x65c6c2c81fb7921dc2243ca93785a39ee5c05aeb6764bdd097bca5bb8faf6837",
+    "hash": "0xdcd0e6af6d00c90247d65fe9a11ae3c34522a772798d753d04b0c2091998522f",
     "language": "ink! 5.1.1",
     "compiler": "rustc 1.87.0-nightly",
     "build_info": {
@@ -26,7 +26,7 @@
         "args": [],
         "default": false,
         "docs": [
-          "Constructor that initializes the games asset contract"
+          "Constructor that initializes the assetverse contract"
         ],
         "label": "new",
         "payable": false,
@@ -35,7 +35,7 @@
             "ink_primitives",
             "ConstructorResult"
           ],
-          "type": 16
+          "type": 18
         },
         "selector": "0x9bae9d5e"
       }
@@ -58,19 +58,19 @@
         "displayName": [
           "BlockNumber"
         ],
-        "type": 23
+        "type": 29
       },
       "chainExtension": {
         "displayName": [
           "ChainExtension"
         ],
-        "type": 24
+        "type": 30
       },
       "hash": {
         "displayName": [
           "Hash"
         ],
-        "type": 21
+        "type": 28
       },
       "maxEventTopics": 4,
       "staticBufferSize": 16384,
@@ -78,16 +78,102 @@
         "displayName": [
           "Timestamp"
         ],
-        "type": 22
+        "type": 24
       }
     },
-    "events": [],
+    "events": [
+      {
+        "args": [
+          {
+            "docs": [
+              "The account ID of the newly created player."
+            ],
+            "indexed": true,
+            "label": "account",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [
+              "The in-game name chosen by the player."
+            ],
+            "indexed": false,
+            "label": "name",
+            "type": {
+              "displayName": [
+                "String"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when a new player account is successfully created."
+        ],
+        "label": "PlayerCreated",
+        "module_path": "assets::assets",
+        "signature_topic": "0x49643ac39dc6ec0902776735685fe52d8e8a672436cf7490f4e73ca23d5dca95"
+      },
+      {
+        "args": [
+          {
+            "docs": [
+              "The game to which the asset belongs."
+            ],
+            "indexed": false,
+            "label": "game",
+            "type": {
+              "displayName": [
+                "String"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "docs": [
+              "The name of the asset added (e.g., weapon, skin, item)."
+            ],
+            "indexed": true,
+            "label": "name",
+            "type": {
+              "displayName": [
+                "String"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "docs": [
+              "The asset's price in native token units."
+            ],
+            "indexed": false,
+            "label": "price",
+            "type": {
+              "displayName": [
+                "Balance"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when a new in-game asset is registered on-chain."
+        ],
+        "label": "AssetCreated",
+        "module_path": "assets::assets",
+        "signature_topic": "0xeb18a5ea7ec2afe85ec27f741b2c8b3591436121e425afa2b28d8c535caecce4"
+      }
+    ],
     "lang_error": {
       "displayName": [
         "ink",
         "LangError"
       ],
-      "type": 17
+      "type": 19
     },
     "messages": [
       {
@@ -104,8 +190,8 @@
         ],
         "default": false,
         "docs": [
-          " Register a playing account",
-          " Players are endowed with 1M units of tokens at registration"
+          " Register a playing account across the network.",
+          " Players are endowed with 1M units of tokens at registration to buy game assets."
         ],
         "label": "register_player",
         "mutates": true,
@@ -115,7 +201,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 16
+          "type": 18
         },
         "selector": "0x44c9d826"
       },
@@ -123,9 +209,9 @@
         "args": [],
         "default": false,
         "docs": [
-          " Get players"
+          " Returns a player account related to an `AccountId`."
         ],
-        "label": "get_player",
+        "label": "auth_player",
         "mutates": true,
         "payable": true,
         "returnType": {
@@ -133,12 +219,21 @@
             "ink",
             "MessageResult"
           ],
-          "type": 18
+          "type": 20
         },
-        "selector": "0xdee6c4bb"
+        "selector": "0x34928eec"
       },
       {
         "args": [
+          {
+            "label": "game",
+            "type": {
+              "displayName": [
+                "String"
+              ],
+              "type": 0
+            }
+          },
           {
             "label": "name",
             "type": {
@@ -170,12 +265,49 @@
             "ink",
             "MessageResult"
           ],
-          "type": 16
+          "type": 18
         },
         "selector": "0x763156d2"
       },
       {
         "args": [
+          {
+            "label": "game",
+            "type": {
+              "displayName": [
+                "String"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Get assets belonging to a game"
+        ],
+        "label": "get_assets",
+        "mutates": true,
+        "payable": true,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 22
+        },
+        "selector": "0xfeb80c9e"
+      },
+      {
+        "args": [
+          {
+            "label": "game",
+            "type": {
+              "displayName": [
+                "String"
+              ],
+              "type": 0
+            }
+          },
           {
             "label": "asset",
             "type": {
@@ -189,9 +321,9 @@
             "label": "count",
             "type": {
               "displayName": [
-                "i64"
+                "u64"
               ],
-              "type": 20
+              "type": 24
             }
           }
         ],
@@ -207,46 +339,9 @@
             "ink",
             "MessageResult"
           ],
-          "type": 16
+          "type": 25
         },
         "selector": "0x907a5f68"
-      },
-      {
-        "args": [
-          {
-            "label": "asset",
-            "type": {
-              "displayName": [
-                "String"
-              ],
-              "type": 0
-            }
-          },
-          {
-            "label": "count",
-            "type": {
-              "displayName": [
-                "i64"
-              ],
-              "type": 20
-            }
-          }
-        ],
-        "default": false,
-        "docs": [
-          " Remove units of an asset, without refunding or deducting money."
-        ],
-        "label": "remove_asset",
-        "mutates": true,
-        "payable": true,
-        "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
-          "type": 16
-        },
-        "selector": "0x1e566b7e"
       },
       {
         "args": [
@@ -272,9 +367,9 @@
             "label": "amount",
             "type": {
               "displayName": [
-                "i64"
+                "u64"
               ],
-              "type": 20
+              "type": 24
             }
           }
         ],
@@ -290,7 +385,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 16
+          "type": 25
         },
         "selector": "0x6b538a1d"
       }
@@ -350,11 +445,11 @@
                   "layout": {
                     "leaf": {
                       "key": "0x040d27f2",
-                      "ty": 1
+                      "ty": 12
                     }
                   },
                   "root_key": "0x040d27f2",
-                  "ty": 12
+                  "ty": 14
                 }
               },
               "name": "assets"
@@ -364,7 +459,7 @@
         }
       },
       "root_key": "0x00000000",
-      "ty": 15
+      "ty": 17
     }
   },
   "types": [
@@ -559,6 +654,27 @@
       "id": 12,
       "type": {
         "def": {
+          "sequence": {
+            "type": 13
+          }
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": {
+        "def": {
+          "tuple": [
+            0,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": {
+        "def": {
           "composite": {}
         },
         "params": [
@@ -568,11 +684,11 @@
           },
           {
             "name": "V",
-            "type": 1
+            "type": 12
           },
           {
             "name": "KeyType",
-            "type": 13
+            "type": 15
           }
         ],
         "path": [
@@ -584,7 +700,7 @@
       }
     },
     {
-      "id": 13,
+      "id": 15,
       "type": {
         "def": {
           "composite": {}
@@ -596,7 +712,7 @@
           },
           {
             "name": "R",
-            "type": 14
+            "type": 16
           }
         ],
         "path": [
@@ -607,7 +723,7 @@
       }
     },
     {
-      "id": 14,
+      "id": 16,
       "type": {
         "def": {
           "composite": {}
@@ -626,7 +742,7 @@
       }
     },
     {
-      "id": 15,
+      "id": 17,
       "type": {
         "def": {
           "composite": {
@@ -638,8 +754,8 @@
               },
               {
                 "name": "assets",
-                "type": 12,
-                "typeName": "<Mapping<String, Balance> as::ink::storage::traits::\nAutoStorableHint<::ink::storage::traits::ManualKey<4062645508u32,\n()>,>>::Type"
+                "type": 14,
+                "typeName": "<Mapping<String, Vec<(String, Balance)>> as::ink::storage::traits\n::AutoStorableHint<::ink::storage::traits::ManualKey<\n4062645508u32, ()>,>>::Type"
               }
             ]
           }
@@ -652,7 +768,7 @@
       }
     },
     {
-      "id": 16,
+      "id": 18,
       "type": {
         "def": {
           "variant": {
@@ -669,7 +785,7 @@
               {
                 "fields": [
                   {
-                    "type": 17
+                    "type": 19
                   }
                 ],
                 "index": 1,
@@ -685,7 +801,7 @@
           },
           {
             "name": "E",
-            "type": 17
+            "type": 19
           }
         ],
         "path": [
@@ -694,7 +810,7 @@
       }
     },
     {
-      "id": 17,
+      "id": 19,
       "type": {
         "def": {
           "variant": {
@@ -713,7 +829,7 @@
       }
     },
     {
-      "id": 18,
+      "id": 20,
       "type": {
         "def": {
           "variant": {
@@ -721,7 +837,7 @@
               {
                 "fields": [
                   {
-                    "type": 19
+                    "type": 21
                   }
                 ],
                 "index": 0,
@@ -730,7 +846,7 @@
               {
                 "fields": [
                   {
-                    "type": 17
+                    "type": 19
                   }
                 ],
                 "index": 1,
@@ -742,11 +858,11 @@
         "params": [
           {
             "name": "T",
-            "type": 19
+            "type": 21
           },
           {
             "name": "E",
-            "type": 17
+            "type": 19
           }
         ],
         "path": [
@@ -755,7 +871,7 @@
       }
     },
     {
-      "id": 19,
+      "id": 21,
       "type": {
         "def": {
           "variant": {
@@ -788,15 +904,210 @@
       }
     },
     {
-      "id": 20,
+      "id": 22,
       "type": {
         "def": {
-          "primitive": "i64"
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 19
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 23
+          },
+          {
+            "name": "E",
+            "type": 19
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 23,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "None"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 12
+                  }
+                ],
+                "index": 1,
+                "name": "Some"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 12
+          }
+        ],
+        "path": [
+          "Option"
+        ]
+      }
+    },
+    {
+      "id": 24,
+      "type": {
+        "def": {
+          "primitive": "u64"
         }
       }
     },
     {
-      "id": 21,
+      "id": 25,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 26
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 19
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 26
+          },
+          {
+            "name": "E",
+            "type": 19
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 26,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 11
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 27
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 11
+          },
+          {
+            "name": "E",
+            "type": 27
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 27,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "AssetNotFound"
+              },
+              {
+                "index": 1,
+                "name": "GameWithoutAssets"
+              },
+              {
+                "index": 2,
+                "name": "InsufficientBalance"
+              },
+              {
+                "index": 3,
+                "name": "PlayerNotFound"
+              },
+              {
+                "index": 4,
+                "name": "InsufficientAssetCount"
+              }
+            ]
+          }
+        },
+        "path": [
+          "assets",
+          "assets",
+          "ContractError"
+        ]
+      }
+    },
+    {
+      "id": 28,
       "type": {
         "def": {
           "composite": {
@@ -816,15 +1127,7 @@
       }
     },
     {
-      "id": 22,
-      "type": {
-        "def": {
-          "primitive": "u64"
-        }
-      }
-    },
-    {
-      "id": 23,
+      "id": 29,
       "type": {
         "def": {
           "primitive": "u32"
@@ -832,7 +1135,7 @@
       }
     },
     {
-      "id": 24,
+      "id": 30,
       "type": {
         "def": {
           "variant": {}

@@ -4,13 +4,56 @@
 
 #[ink::contract]
 mod assets {
-    use core::ops::Neg;
-
     use ink::{
         prelude::string::{String, ToString},
         prelude::vec::Vec,
         storage::Mapping,
     };
+
+    /// Event emitted when a new player account is successfully created.
+    #[ink(event)]
+    pub struct PlayerCreated {
+        /// The account ID of the newly created player.
+        #[ink(topic)]
+        account: AccountId,
+
+        /// The in-game name chosen by the player.
+        name: String,
+    }
+
+    /// Event emitted when a new in-game asset is registered on-chain.
+    #[ink(event)]
+    pub struct AssetCreated {
+        /// The game to which the asset belongs.
+        game: String,
+
+        /// The name of the asset added (e.g., weapon, skin, item).
+        #[ink(topic)]
+        name: String,
+
+        /// The asset's price in native token units.
+        price: Balance,
+    }
+
+    /// Custom errors that can be returned by the contract methods.
+    #[derive(Debug, PartialEq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    pub enum ContractError {
+        /// The specified asset could not be found.
+        AssetNotFound,
+
+        /// The specified game has no registered assets.
+        GameWithoutAssets,
+
+        /// The player does not have enough balance to complete the action.
+        InsufficientBalance,
+
+        /// The specified player could not be found in storage.
+        PlayerNotFound,
+
+        /// The player does not have enough units of the asset to proceed.
+        InsufficientAssetCount,
+    }
 
     /// The main contract for managing game players and in-game assets.
     #[derive(Default)]
@@ -24,11 +67,11 @@ mod assets {
         /// - A list of `assets`: strings representing assets with quantities (e.g., "cod_firegun_9").
         players: Mapping<AccountId, Player>,
 
-        /// Mapping of available in-game assets to their price in tokens.
-        ///
-        /// Key: asset identifier (e.g., "cod_firegun").
-        /// Value: cost of the asset in the game's native currency.
-        assets: Mapping<String, Balance>,
+        /// Mapping from a game to its assets
+        assets: Mapping<String, Vec<(String, Balance)>>,
+
+        /// Games available onchain
+        games: Vec<String>,
     }
 
     /// Data structure representing an individual player.
@@ -36,7 +79,7 @@ mod assets {
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
     #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     pub struct Player {
-        /// The player’s chosen in-game name.
+        /// The player’s chosen name across games.
         name: String,
 
         /// Player’s available token balance.
@@ -49,134 +92,362 @@ mod assets {
     }
 
     impl Assets {
-        /// Constructor that initializes the games asset contract
+        /// Constructor that initializes the assetverse contract
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {
                 players: Mapping::default(),
                 assets: Mapping::default(),
+                games: Vec::new(),
             }
         }
 
-        /// Register a playing account
-        /// Players are endowed with 1M units of tokens at registration
+        /// Register a playing account across the network.
+        /// Players are endowed with 1M units of tokens at registration to buy game assets.
         #[ink(message, payable)]
         pub fn register_player(&mut self, name: String) {
+            // Get caller
             let account_id = self.env().caller();
 
             // Create a new player with default values
             let player = Player {
-                name,
+                name: name.clone(),
                 balance: 1_000_000,
                 assets: Vec::new(),
             };
 
+            // Emit event
+            self.env().emit_event(PlayerCreated {
+                account: account_id.clone(),
+                name,
+            });
+
             self.players.insert(&account_id, &player);
         }
 
-        /// Get players
+        /// Returns a player account related to an `AccountId`.
         #[ink(message, payable)]
-        pub fn get_player(&mut self) -> Option<Player> {
+        pub fn auth_player(&mut self) -> Option<Player> {
+            // Get caller
             let account_id = self.env().caller();
-
             self.players.get(&account_id)
+        }
+
+        /// Returns the registered games
+        #[ink(message, payable)]
+        pub fn games(&self) -> Vec<String> {
+            self.games.clone()
         }
 
         /// Register an asset
         #[ink(message, payable)]
-        pub fn register_asset(&mut self, name: String, price: Balance) {
-            // Insert into storage
-            self.assets.insert(&name, &price);
+        pub fn register_asset(&mut self, game: String, name: String, price: Balance) {
+            // Fetch current assets for the game
+            let mut asset_list = self.assets.get(&game).unwrap_or_default();
+
+            // Append the new asset
+            asset_list.push((name.clone(), price));
+
+            // Store the updated list back in the mapping
+            self.assets.insert(&game, &asset_list);
+
+            // Store the game entry
+            self.games.push(game.clone());
+
+            // Emit event
+            self.env().emit_event(AssetCreated { game, name, price });
+        }
+
+        /// Get assets belonging to a game
+        #[ink(message, payable)]
+        pub fn assets(&self, game: String) -> Option<Vec<(String, Balance)>> {
+            self.assets.get(&game)
         }
 
         /// Buy units of an asset, deducting its price from the player's balance.
         #[ink(message, payable)]
-        pub fn purchase_asset(&mut self, asset: String, count: i64) {
+        pub fn purchase_asset(
+            &mut self,
+            game: String,
+            asset: String,
+            count: u64,
+        ) -> Result<(), ContractError> {
             let account_id = self.env().caller();
-            self.modify_assets(account_id, asset, count, true);
-        }
 
-        /// Remove units of an asset, without refunding or deducting money.
-        #[ink(message, payable)]
-        pub fn remove_asset(&mut self, asset: String, count: i64) {
-            let account_id = self.env().caller();
-            self.modify_assets(account_id, asset, count.neg(), false);
+            // Validate count
+            if count <= 0 {
+                return Err(ContractError::InsufficientAssetCount);
+            }
+
+            // Retrieve asset price from game
+            let asset_price = match self.assets.get(&game) {
+                Some(asset_list) => {
+                    let mut price: Option<Balance> = None;
+                    for (a_name, a_price) in asset_list.iter() {
+                        if *a_name == asset {
+                            price = Some(*a_price);
+                            break;
+                        }
+                    }
+                    match price {
+                        Some(p) => p,
+                        None => return Err(ContractError::AssetNotFound),
+                    }
+                }
+                None => return Err(ContractError::GameWithoutAssets),
+            };
+
+            // Load player
+            let mut player = match self.players.get(&account_id) {
+                Some(p) => p,
+                None => return Err(ContractError::PlayerNotFound),
+            };
+
+            // Check for sufficient balance
+            if player.balance < (asset_price * count as u128) {
+                return Err(ContractError::InsufficientBalance);
+            }
+
+            // Deduct payment
+            player.balance -= asset_price * count as u128;
+
+            // Update or add asset string (e.g., firegun_5)
+            let mut found = false;
+
+            for i in 0..player.assets.len() {
+                if player.assets[i].starts_with(&asset) {
+                    let parts: Vec<&str> = player.assets[i].split('_').collect();
+                    if parts.len() == 2 {
+                        if let Ok(current_count) = parts[1].parse::<u64>() {
+                            let new_count = current_count + count;
+
+                            let mut updated = String::from(asset.as_str());
+                            updated.push('_');
+                            updated.push_str(&new_count.to_string());
+
+                            player.assets[i] = updated;
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // If asset not found, add it
+            if !found {
+                let mut new_asset = String::from(asset.as_str());
+                new_asset.push('_');
+                new_asset.push_str(&count.to_string());
+
+                player.assets.push(new_asset);
+            }
+
+            // Store player
+            self.players.insert(&account_id, &player);
+
+            Ok(())
         }
 
         /// Gift an asset to a specific player without charging them.
         #[ink(message, payable)]
-        pub fn gift_asset(&mut self, receiver: AccountId, asset: String, amount: i64) {
-            self.modify_assets(receiver, asset, amount, false);
-        }
-
-        /// Internal utility that handles asset quantity and optionally deducts payment.
-        fn modify_assets(
+        pub fn gift_asset(
             &mut self,
-            account_id: AccountId,
+            receiver: AccountId,
             asset: String,
-            count_change: i64,
-            should_pay: bool,
-        ) {
-            // Get asset price if payment is needed
-            let asset_price = if should_pay {
-                match self.assets.get(&asset) {
-                    Some(price) => price,
-                    None => return, // Asset doesn't exist
-                }
-            } else {
-                0
+            amount: u64,
+        ) -> Result<(), ContractError> {
+            // Get sender
+            let sender = self.env().caller();
+            let mut sender_player = match self.players.get(&sender) {
+                Some(p) => p,
+                None => return Err(ContractError::PlayerNotFound),
             };
 
-            // Get player data
-            if let Some(mut player) = self.players.get(&account_id) {
-                // Check if enough balance
-                if should_pay && player.balance < asset_price {
-                    return;
-                }
+            // Check if sender has enough of the asset
+            let mut found_sender_asset = false;
 
-                if should_pay {
-                    player.balance -= asset_price;
-                }
-
-                let asset_prefix = asset.clone(); // e.g., cod_firegun
-                let mut found = false;
-
-                for i in 0..player.assets.len() {
-                    if player.assets[i].starts_with(&asset_prefix) {
-                        let parts: Vec<&str> = player.assets[i].split('_').collect();
-                        if parts.len() == 3 {
-                            if let Ok(current_count) = parts[2].parse::<i64>() {
-                                let new_count = current_count + count_change;
-
-                                if new_count <= 0 {
-                                    player.assets.remove(i);
-                                } else {
-                                    let mut new_asset = String::from(parts[0]);
-                                    new_asset.push('_');
-                                    new_asset.push_str(parts[1]);
-                                    new_asset.push('_');
-                                    new_asset.push_str(&new_count.to_string());
-
-                                    player.assets[i] = new_asset;
-                                }
-
-                                found = true;
-                                break;
+            for i in 0..sender_player.assets.len() {
+                if sender_player.assets[i].starts_with(&asset) {
+                    let parts: Vec<&str> = sender_player.assets[i].split('_').collect();
+                    if parts.len() == 2 {
+                        if let Ok(current_count) = parts[1].parse::<u64>() {
+                            if current_count < amount {
+                                return Err(ContractError::InsufficientAssetCount);
                             }
+
+                            let new_count = current_count - amount;
+
+                            if new_count == 0 {
+                                sender_player.assets.remove(i);
+                            } else {
+                                let mut updated = String::from(asset.as_str());
+                                updated.push('_');
+                                updated.push_str(&new_count.to_string());
+                                sender_player.assets[i] = updated;
+                            }
+
+                            found_sender_asset = true;
+                            break;
                         }
                     }
                 }
-
-                if !found && count_change > 0 {
-                    let mut asset_string = String::from(asset_prefix);
-                    asset_string.push('_');
-                    asset_string.push_str(&count_change.to_string());
-
-                    player.assets.push(asset_string);
-                }
-
-                self.players.insert(&account_id, &player);
             }
+
+            if !found_sender_asset {
+                return Err(ContractError::AssetNotFound);
+            }
+
+            // Get receiver
+            let mut receiver_player = match self.players.get(&receiver) {
+                Some(p) => p,
+                None => return Err(ContractError::PlayerNotFound),
+            };
+
+            // Add to receiver's asset count or insert new
+            let mut found_receiver_asset = false;
+
+            for i in 0..receiver_player.assets.len() {
+                if receiver_player.assets[i].starts_with(&asset) {
+                    let parts: Vec<&str> = receiver_player.assets[i].split('_').collect();
+                    if parts.len() == 2 {
+                        if let Ok(current_count) = parts[1].parse::<u64>() {
+                            let new_count = current_count + amount;
+
+                            let mut updated = String::from(asset.as_str());
+                            updated.push('_');
+                            updated.push_str(&new_count.to_string());
+
+                            receiver_player.assets[i] = updated;
+                            found_receiver_asset = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if !found_receiver_asset {
+                let mut new_asset = String::from(asset.as_str());
+                new_asset.push('_');
+                new_asset.push_str(&amount.to_string());
+                receiver_player.assets.push(new_asset);
+            }
+
+            // Store updates
+            self.players.insert(&sender, &sender_player);
+            self.players.insert(&receiver, &receiver_player);
+
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn exchange_asset(
+            &mut self,
+            asset_give: String,
+            units_give: i64,
+            asset_take: String,
+            units_take: i64,
+        ) -> Result<(), ContractError> {
+            let account_id = self.env().caller();
+
+            // Get asset prices from all games
+            let mut price_give: Option<Balance> = None;
+            let mut price_take: Option<Balance> = None;
+
+            for game in &self.games {
+                if let Some(list) = self.assets.get(game) {
+                    for (name, price) in list {
+                        if name == asset_give {
+                            price_give = Some(price);
+                        }
+                        if name == asset_take {
+                            price_take = Some(price);
+                        }
+                    }
+                }
+            }
+
+            let price_give = price_give.ok_or(ContractError::AssetNotFound)?;
+            let price_take = price_take.ok_or(ContractError::AssetNotFound)?;
+
+            let total_give = price_give * (units_give as u128);
+            let total_take = price_take * (units_take as u128);
+
+            if total_give < total_take {
+                return Err(ContractError::InsufficientBalance);
+            }
+
+            let mut player = self
+                .players
+                .get(&account_id)
+                .ok_or(ContractError::PlayerNotFound)?;
+
+            let mut found_give = false;
+
+            for i in 0..player.assets.len() {
+                if let Some((name, qty)) = Self::parse_asset(&player.assets[i]) {
+                    if name == asset_give {
+                        if qty < units_give {
+                            return Err(ContractError::InsufficientAssetCount);
+                        }
+
+                        // Adjust or remove the asset_give
+                        if qty == units_give {
+                            player.assets.remove(i);
+                        } else {
+                            let mut new_str = asset_give.clone();
+                            new_str.push('_');
+                            new_str.push_str(&(qty - units_give).to_string());
+                            player.assets[i] = new_str;
+                        }
+
+                        found_give = true;
+                        break;
+                    }
+                }
+            }
+
+            if !found_give {
+                return Err(ContractError::AssetNotFound);
+            }
+
+            // Add or increase the asset_take
+            let mut found_take = false;
+
+            for i in 0..player.assets.len() {
+                if let Some((name, qty)) = Self::parse_asset(&player.assets[i]) {
+                    if name == asset_take {
+                        let mut new_str = asset_take.clone();
+                        new_str.push('_');
+                        new_str.push_str(&(qty + units_take).to_string());
+                        player.assets[i] = new_str;
+                        found_take = true;
+                        break;
+                    }
+                }
+            }
+
+            if !found_take {
+                let mut new_str = asset_take.clone();
+                new_str.push('_');
+                new_str.push_str(&units_take.to_string());
+                player.assets.push(new_str);
+            }
+
+            // Refund balance if value_give > value_take
+            if total_give > total_take {
+                player.balance += total_give - total_take;
+            }
+
+            self.players.insert(account_id, &player);
+            Ok(())
+        }
+
+        fn parse_asset(asset: &str) -> Option<(String, i64)> {
+            let mut split = asset.rsplitn(2, '_');
+            let qty_str = split.next()?;
+            let name_str = split.next()?;
+            let qty = qty_str.parse::<i64>().ok()?;
+            Some((name_str.to_string(), qty))
         }
     }
 }
