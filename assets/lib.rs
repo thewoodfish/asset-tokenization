@@ -46,7 +46,7 @@ mod assets {
         asset: String,
 
         /// The quantity of the asset purchased.
-        count: i64,
+        count: u64,
 
         /// The total price paid for the assets.
         total_price: Balance,
@@ -67,7 +67,7 @@ mod assets {
         asset: String,
 
         /// The quantity of the asset gifted.
-        count: i64,
+        count: u64,
     }
 
     /// Emitted when a player exchanges one asset for another.
@@ -320,6 +320,14 @@ mod assets {
             // Store player
             self.players.insert(&account_id, &player);
 
+            // Emit Event
+            self.env().emit_event(AssetPurchased {
+                account: account_id,
+                asset,
+                count,
+                total_price: asset_price * count as u128,
+            });
+
             Ok(())
         }
 
@@ -410,6 +418,14 @@ mod assets {
             // Store updates
             self.players.insert(&sender, &sender_player);
             self.players.insert(&receiver, &receiver_player);
+
+            // Emit Event
+            self.env().emit_event(AssetGifted {
+                from: sender,
+                to: receiver,
+                asset,
+                count: amount,
+            });
 
             Ok(())
         }
@@ -514,6 +530,16 @@ mod assets {
             }
 
             self.players.insert(account_id, &player);
+
+            // Emit Event
+            self.env().emit_event(AssetExchanged {
+                account: account_id,
+                from_asset: asset_give,
+                to_asset: asset_take,
+                from_count: units_give,
+                to_count: units_take,
+                refund: total_give - total_take,
+            });
             Ok(())
         }
 
@@ -533,6 +559,7 @@ mod assets {
                 .ok_or(ContractError::PlayerNotFound)?;
 
             let mut found = false;
+            let mut n_count = 0;
 
             for i in 0..player.assets.len() {
                 if let Some(pos) = player.assets[i].rfind('_') {
@@ -548,6 +575,8 @@ mod assets {
                         } else {
                             existing_count - count
                         };
+
+                        n_count = new_count;
 
                         if new_count < 0 {
                             return Err(ContractError::InsufficientAssetCount);
@@ -568,7 +597,7 @@ mod assets {
 
             if !found {
                 if increase {
-                    let mut new_string = String::from(asset);
+                    let mut new_string = String::from(asset.clone());
                     new_string.push('_');
                     new_string.push_str(&count.to_string());
                     player.assets.push(new_string);
@@ -578,6 +607,23 @@ mod assets {
             }
 
             self.players.insert(caller, &player);
+
+            // Emit Event
+            //  self.env().emit_event(AssetPurchased {
+            //     account: account_id,
+            //     asset,
+            //     count,
+            //     total_price: asset_price * count as u128,
+            // });
+
+            // Emit Event
+            self.env().emit_event(AssetModified {
+                account: caller,
+                asset,
+                new_count: n_count,
+                increased: increase,
+            });
+
             Ok(())
         }
 
