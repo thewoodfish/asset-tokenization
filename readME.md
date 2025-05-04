@@ -31,7 +31,8 @@ AssetVerse solves this by creating an open, composable asset system that lives o
 
 - **ink!** smart contracts on the **Polkadot/Substrate** ecosystem  
 - **Rust** for contract logic  
-- **TypeScript & TailwindCSS** for frontend (optional UI layer)  
+- **PolkadotJS** for client-side integration and chain interactions.
+- **TailwindCSS** for frontend (optional UI layer)  
 - Deployed on local Substrate node for demonstration
 
 ```
