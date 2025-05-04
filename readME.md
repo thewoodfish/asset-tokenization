@@ -1,6 +1,4 @@
-Here's the full README in Markdown format:
 
-```markdown
 # 🕹️ AssetVerse — Interoperable In-Game Assets Onchain
 
 **Games are isolated environments where assets do not mix.**  
@@ -60,6 +58,3 @@ In future versions, we plan to support **cross-chain asset transfer** using **IS
 
 AssetVerse lays the foundation for an open, game-agnostic asset ecosystem.  
 By enabling true ownership and transferability of in-game items, we give players more power and games more depth.
-```
-
-Would you like a `LICENSE` and `CONTRIBUTING.md` included as well?
