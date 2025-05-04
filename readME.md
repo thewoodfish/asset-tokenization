@@ -24,7 +24,7 @@ AssetVerse solves this by creating an open, composable asset system that lives o
 - ✅ **Gift assets** — Send assets to other players without charge.
 - ✅ **Exchange assets across games** — Exchange assets between different games as long as they make economic sense (value-aware).
 - ✅ **View balance and assets** — Track all asset holdings and token balances tied to a gaming identity.
-
+- ✅ **Modify asset counts** — Dynamically increase or decrease the quantity of a player's assets based on in-game events or transactions.
 ---
 
 ## 🔧 Tech Stack
