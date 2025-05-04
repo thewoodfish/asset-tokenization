@@ -152,11 +152,6 @@ async function registerAsset(req, res) {
     }
 }
 
-// #[ink(message, payable)]
-// pub fn get_assets(&mut self, game: String) -> Option<Vec<(String, Balance)>> {
-//     self.assets.get(&game)
-// }
-
 // Fetch games
 async function fetchGames(res) {
     // We get all the games first

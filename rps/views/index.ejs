@@ -6,45 +6,372 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rock Paper Scissors</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        button {
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
-    <section class="container">
-        <!-- Result display section -->
-        <div class="result_field">
-            <!-- Container for user and BOT result images -->
-            <div class="result_images">
-                <span class="user_result">
-                    <img src="images/rock.png" alt="User's choice image" />
-                </span>
-                <span class="bot_result">
-                    <img src="images/rock.png" alt="BOT's choice image" />
-                </span>
-            </div>
-            <!-- Display the game result message -->
-            <div class="result">Let's Play!</div>
-        </div>
+    <div class="flex items-center justify-center bg-gray-100- mt-5">
+        <p class="text-4xl font-bold text-blue-600 tracking-wide">AssetVerse!</p>
+    </div>
 
-        <!-- Options for user to choose from -->
-        <div class="option_images">
-            <span class="option_image">
-                <img src="images/rock.png" alt="Rock image" />
-                <p>Rock</p>
-            </span>
-            <span class="option_image">
-                <img src="images/paper.png" alt="Paper image" />
-                <p>Paper</p>
-            </span>
-            <span class="option_image">
-                <img src="images/scissors.png" alt="Scissors image" />
-                <p>Scissors</p>
-            </span>
+    <div class="flex justify-center items-center pt-10">
+        <div class="md:flex">
+            <ul
+                class="flex-column space-y space-y-4 text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0">
+                <li class="">
+                    <a href="#" data-index="0"
+                        class="list-item-x inline-flex items-center px-4 py-3 rounded-lg active w-full dark:bg-blue-600 text-white bg-blue-700 "
+                        aria-current="page">
+                        Create player account
+                    </a>
+                </li>
+                <li class="">
+                    <a href="#" data-index="1"
+                        class=" list-item-x inline-flex items-center px-4 py-3 rounded-lg hover:text-gray-900 bg-gray-50 hover:bg-gray-100 w-full dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white">
+                        Register game asset
+                    </a>
+                </li>
+                <li class="">
+                    <a href="#" data-index="2"
+                        class="buy-game-assets list-item-x inline-flex items-center px-4 py-3 rounded-lg hover:text-gray-900 bg-gray-50 hover:bg-gray-100 w-full dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white">
+                        Buy game assets
+                    </a>
+                </li>
+                <li class="list-item-x">
+                    <a href="#" data-index="3"
+                        class="list-item-x trade-game-asset inline-flex items-center px-4 py-3 rounded-lg hover:text-gray-900 bg-gray-50 hover:bg-gray-100 w-full dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white">
+                        Trade game assets
+                    </a>
+                </li>
+                <li class="">
+                    <a href="#" data-index="4"
+                        class="list-item-x gift-game-assets inline-flex items-center px-4 py-3 rounded-lg hover:text-gray-900 bg-gray-50 hover:bg-gray-100 w-full dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white">
+                        Gift asset
+                    </a>
+                </li>
+            </ul>
+            <div class="p-6 bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full list-tab-x"
+                data-index="0">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Create a gaming account</h3>
+                <p class="mb-2">
+                    Generate a secure onchain gaming account that becomes your universal identity across all games. This
+                    account will: <br>
+
+                    - Hold all your assets and collectibles <br>
+
+                    - Track your progress and interactions across every supported game <br>
+
+                    - Enable seamless gameplay by authenticating your identity before access <br><br>
+
+                    Before jumping into any game, you’ll be required to sign in with your account <br>— ensuring your
+                    assets, achievements, and profile stay uniquely yours.
+                </p>
+
+                <form class="max-w-sm mx-aut-o mt-5">
+                    <div class="mb-5">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Player name</label>
+                        <input type="text"
+                            class="player-name bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Woodfish" required />
+                    </div>
+                </form>
+
+                <button type="button"
+                    class="gen-account-btn px-6 py-3.5 text-base font-medium text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    Create a new gaming account
+                </button>
+
+                <button disabled type="button"
+                    class="gen-account-btn-1 hidden t-5 px-6 py-3.5 text-base font-medium text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    <svg aria-hidden="true" role="status" class="inline w-4 h-4 me-3 text-white animate-spin"
+                        viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                            fill="#E5E7EB" />
+                        <path
+                            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                            fill="currentColor" />
+                    </svg>
+                    Creating account...
+                </button>
+
+                <div class="flex flex-col items-center space-y-4 mnemonics-div hidden">
+                    <p class="text-gray-800 font-semibold">Your mnemonic seed phrase:</p>
+
+                    <div id="mnemonics" class="mnemonics gap-2 p-4 bg-white rounded-lg shadow-md max-w-md">
+                    </div>
+
+                    <button data-target="mnemonics"
+                        class="copy-to-clipboard mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                        Copy
+                    </button>
+                </div>
+
+            </div>
+            <div class=" hidden p-6 bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full list-tab-x"
+                data-index="1">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">🕹️ Register Your Game Onchain</h3>
+                <p class="mb-2">
+                    Bring your game onchain to make all its assets and collectibles transferable, tradable, and usable across the ecosystem.
+                </p>
+                <div>
+                    <form class="max-w-sm mx-aut-o mt-5">
+                        <div class="mb-5">
+                            <label class=" block mb-2 text-sm font-medium text-gray-900 dark:text-white">Game
+                                name</label>
+                            <input type="text"
+                                class="asset-info-x bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Call of Duty" required />
+                        </div>
+                        <div class="mb-5">
+                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Asset
+                                name</label>
+                            <input type="text" placeholder="firegun"
+                                class="asset-info-x bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                required />
+                        </div>
+                        <div class="mb-5">
+                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Price</label>
+                            <input type="number" value="0"
+                                class="asset-info-x bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                required />
+                        </div>
+                        <button type="submit" onclick="return false"
+                            class="reg-assets-btn text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add
+                            Asset Onchain</button>
+
+                        <button disabled type="button"
+                            class="reg-assets-btn-1 hidden t-5 px-6 py-3.5 text-base font-medium text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            <svg aria-hidden="true" role="status" class="inline w-4 h-4 me-3 text-white animate-spin"
+                                viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                    fill="#E5E7EB" />
+                                <path
+                                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                    fill="currentColor" />
+                            </svg>
+                            Registering game...
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="hidden p-6 bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full  list-tab-x"
+                data-index="2">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">🎯 Purchase Game Assets</h3>
+                <p class="mb-2">
+                    Buy game assets that can be used and traded across multiple games in the ecosystem.
+                </p>
+                <form class="max-w-sm mx-aut-o mt-5">
+                    <div class="mb-5">
+                        <label for="games"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Games</label>
+                        <select id="games"
+                            class="buy-asset-field games-selector bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        </select>
+                    </div>
+                    <div class="mb-5">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Asset</label>
+                        <select id="assets"
+                            class="buy-asset-field asset-selector bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option selected>Select games</option>
+                        </select>
+                    </div>
+                    <div class="mb-5">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Number</label>
+                        <input type="number" value="0"
+                            class="buy-asset-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            required />
+                    </div>
+
+                    <button type="submit" onclick="return false"
+                        class="buy-asset-btn text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        Purchase asset
+                    </button>
+
+                    <button disabled type="button"
+                        class="buy-asset-btn-1 hidden t-5 px-6 py-3.5 text-base font-medium text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <svg aria-hidden="true" role="status" class="inline w-4 h-4 me-3 text-white animate-spin"
+                            viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                fill="#E5E7EB" />
+                            <path
+                                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                fill="currentColor" />
+                        </svg>
+                        Purchasing...
+                    </button>
+                </form>
+            </div>
+            <div class=" hidden p-6 bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full  list-tab-x"
+                data-index="3">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-5">♻️ Exchange Assets Across Games</h3>
+                <p class="mb-2">
+                    Swap assets from one game for those in another, based on their value — ensuring fair and meaningful trades across the ecosystem.
+                </p>
+                <div class="flex flex-col items-center gap-6 mb-[60px]">
+                    <!-- Exchange Cards -->
+                    <div class="flex items-center gap-4 mt-5">
+                        <!-- Left Card -->
+                        <div class="p-6 rounded-lg border w-64 border-gray-300 shado">
+                            <div class="mb-4">
+                                <label>Game</label>
+                                <select
+                                    class="select-game-card xchange-form bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label>Asset</label>
+                                <select
+                                    class="select-asset-card xchange-form bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                </select>
+                            </div>
+                            <div class="mb-5">
+                                <label
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Number</label>
+                                <input type="number" value="0"
+                                    class=" xchange-form bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    required />
+                            </div>
+                        </div>
+
+                        <!-- Swap Icon -->
+                        <div class="text-[#1e3a8a] dark:text-[#1e3a8a]">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+
+                        <!-- Right Card -->
+                        <div class="p-6 rounded-lg border w-64 border-gray-300 shado">
+                            <div class="mb-4">
+                                <label>Game</label>
+                                <select
+                                    class=" xchange-form select-game-card-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label>Asset</label>
+                                <select
+                                    class="select-asset-card-1 xchange-form bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                </select>
+                            </div>
+                            <div class="mb-5">
+                                <label
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Number</label>
+                                <input type="number" value="0"
+                                    class=" bg-gray-50 border xchange-form border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button"
+                        class="xchange-btn mt-5 px-6 py-3.5 text-base font-medium text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        Exchange Asset
+                    </button>
+
+                    <button disabled type="button"
+                        class="xchange-btn-1 hidden t-5 px-6 py-3.5 text-base font-medium text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <svg aria-hidden="true" role="status" class="inline w-4 h-4 me-3 text-white animate-spin"
+                            viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                fill="#E5E7EB" />
+                            <path
+                                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                fill="currentColor" />
+                        </svg>
+                        Processing...
+                    </button>
+                </div>
+
+            </div>
+            <div class=" hidden p-6 bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full list-tab-x"
+                data-index="4">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">🎁 Gift Assets to Other Players</h3>
+                <p class="mb-2">
+                    Send in-game assets to friends. Choose the asset and recipient — no cost, just generosity.
+                <form class="max-w-sm mx-aut-o mt-5">
+                    <div class="mb-5">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Game</label>
+                        <select id="gift-game"
+                            class="gift-form bg-gray-50 border gift-selector border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        </select>
+                    </div>
+                    <div class="mb-5">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Asset</label>
+                        <select id="gift-asset"
+                            class="gift-form bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        </select>
+                    </div>
+                    <div class="mb-5">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Number of
+                            units</label>
+                        <input type="number" value="1"
+                            class="gift-form bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            required />
+                    </div>
+                    <div class="mb-5">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Reciever's SS58
+                            address </label>
+
+                        <input type="text" placeholder="14qViLJfdGaP4EeHnDyJbEGQysnCpwnZotDTb8tEx9x6iCu6"
+                            class="gift-form bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            required />
+                    </div>
+                    <button type="submit" onclick="return false"
+                        class="gift-asset-btn text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        Gift asset
+                    </button>
+
+                    <button disabled type="button"
+                        class="gift-asset-btn-1 hidden t-5 px-6 py-3.5 text-base font-medium text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <svg aria-hidden="true" role="status" class="inline w-4 h-4 me-3 text-white animate-spin"
+                            viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                fill="#E5E7EB" />
+                            <path
+                                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                fill="currentColor" />
+                        </svg>
+                        Processing...
+                    </button>
+                </form>
+                </p>
+            </div>
         </div>
-    </section>
-    <div id="toast" class="toast"></div>
-    <script src="js/script.js" defer></script>
-    <script src="js/main.js" defer></script>
+    </div>
+    <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 hidden toast-div bg ">
+        <div id="toast-danger"
+            class="flex items-center w-full max-w-xs p-4 mb-4 tdark:bg-blue-600 text-white bg-blue-700 rounded-lg shadow-sm dark:text-gray-400 dark:bg-gray-800"
+            role="alert">
+            <!-- <div
+                class="inline-flex items-center justify-center shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg dark:bg-red-800 dark:text-red-200">
+                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                    viewBox="0 0 20 20">
+                    <path
+                        d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z" />
+                </svg>
+                <span class="sr-only">Error icon</span>
+            </div> -->
+            <div class="ms-3 text-sm font-normal toast-msg"></div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>

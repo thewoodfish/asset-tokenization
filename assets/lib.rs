@@ -35,6 +35,81 @@ mod assets {
         price: Balance,
     }
 
+    /// Emitted when a player purchases an asset from the game store.
+    #[ink(event)]
+    pub struct AssetPurchased {
+        /// The account that made the purchase.
+        #[ink(topic)]
+        account: AccountId,
+
+        /// The name of the asset purchased.
+        asset: String,
+
+        /// The quantity of the asset purchased.
+        count: i64,
+
+        /// The total price paid for the assets.
+        total_price: Balance,
+    }
+
+    /// Emitted when a player gifts an asset to another player.
+    #[ink(event)]
+    pub struct AssetGifted {
+        /// The sender's account.
+        #[ink(topic)]
+        from: AccountId,
+
+        /// The receiver's account.
+        #[ink(topic)]
+        to: AccountId,
+
+        /// The asset being gifted.
+        asset: String,
+
+        /// The quantity of the asset gifted.
+        count: i64,
+    }
+
+    /// Emitted when a player exchanges one asset for another.
+    #[ink(event)]
+    pub struct AssetExchanged {
+        /// The account that initiated the exchange.
+        #[ink(topic)]
+        account: AccountId,
+
+        /// The asset being given away.
+        from_asset: String,
+
+        /// The asset being received.
+        to_asset: String,
+
+        /// The quantity of the asset given.
+        from_count: i64,
+
+        /// The quantity of the asset received.
+        to_count: i64,
+
+        /// Any balance refunded to the user due to excess value.
+        refund: Balance,
+    }
+
+    /// Emitted when a player's asset count is modified (manually or through gameplay).
+    #[ink(event)]
+    pub struct AssetModified {
+        /// The account whose asset was modified.
+        #[ink(topic)]
+        account: AccountId,
+
+        /// The asset affected.
+        asset: String,
+
+        /// The updated quantity after modification.
+        new_count: i64,
+
+        /// Whether the asset count was increased (`true`) or decreased (`false`).
+        increased: bool,
+    }
+
     /// Custom errors that can be returned by the contract methods.
     #[derive(Debug, PartialEq)]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
@@ -450,6 +525,7 @@ mod assets {
             count: i64,
             increase: bool,
         ) -> Result<(), ContractError> {
+            // Get contract caller
             let caller = self.env().caller();
             let mut player = self
                 .players
@@ -459,34 +535,43 @@ mod assets {
             let mut found = false;
 
             for i in 0..player.assets.len() {
-                let parts: Vec<&str> = player.assets[i].rsplitn(2, '_').collect(); // [count, asset]
-                if parts.len() == 2 && parts[1] == asset {
-                    let existing_count = parts[0]
-                        .parse::<i64>()
-                        .map_err(|_| ContractError::InsufficientAssetCount)?;
+                if let Some(pos) = player.assets[i].rfind('_') {
+                    let (name, qty_str) = player.assets[i].split_at(pos);
+                    let qty_str = &qty_str[1..]; // remove underscore
+                    if name == asset {
+                        let existing_count = qty_str
+                            .parse::<i64>()
+                            .map_err(|_| ContractError::InsufficientAssetCount)?;
 
-                    let new_count = if increase {
-                        existing_count + count
-                    } else {
-                        existing_count - count
-                    };
+                        let new_count = if increase {
+                            existing_count + count
+                        } else {
+                            existing_count - count
+                        };
 
-                    if new_count < 0 {
-                        return Err(ContractError::InsufficientAssetCount);
-                    } else if new_count == 0 {
-                        player.assets.remove(i);
-                    } else {
-                        player.assets[i] = format!("{}_{}", asset, new_count);
+                        if new_count < 0 {
+                            return Err(ContractError::InsufficientAssetCount);
+                        } else if new_count == 0 {
+                            player.assets.remove(i);
+                        } else {
+                            let mut new_string = String::from(name);
+                            new_string.push('_');
+                            new_string.push_str(&new_count.to_string());
+                            player.assets[i] = new_string;
+                        }
+
+                        found = true;
+                        break;
                     }
-
-                    found = true;
-                    break;
                 }
             }
 
             if !found {
                 if increase {
-                    player.assets.push(format!("{}_{}", asset, count));
+                    let mut new_string = String::from(asset);
+                    new_string.push('_');
+                    new_string.push_str(&count.to_string());
+                    player.assets.push(new_string);
                 } else {
                     return Err(ContractError::InsufficientAssetCount);
                 }

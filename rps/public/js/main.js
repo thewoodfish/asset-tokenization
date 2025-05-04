@@ -280,7 +280,7 @@ document.body.addEventListener(
 
       gameInputs.forEach((e) => {
         assetData.push(e.value);
-        if (!e.value) allFilled = false;
+        if (!e.value || e.value.includes("Select")) allFilled = false;
       });
 
       if (allFilled) {
