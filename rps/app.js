@@ -233,7 +233,7 @@ async function swapAssets(req, res) {
         const data = req.data.split("$$$");
 
         // Call contract to buy asset
-        await chain.swapAsset(api, contract, /* user */bob, data[1] + "$", parseInt(data[2]), data[4] + "$", parseInt(data[5])).then(() => {
+        await chain.swapAsset(api, contract, /* user */bob, data[1].trim() + "$", parseInt(data[2]), data[4].trim() + "$", parseInt(data[5])).then(() => {
             // Return the keys to the user for next auth
             return res.send({
                 data: "Asset swaped successfully!",
