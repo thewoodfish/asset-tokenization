@@ -34,6 +34,11 @@ AssetVerse solves this by creating an open, composable asset system that lives o
 - **TypeScript & TailwindCSS** for frontend (optional UI layer)  
 - Deployed on local Substrate node for demonstration
 
+```
+**Bob** account (a pre-funded test account) was used internally to deploy and interact with contracts.  
+```
+
+
 ---
 
 ## 🧪 Usage
