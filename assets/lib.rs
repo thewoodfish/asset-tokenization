@@ -442,6 +442,61 @@ mod assets {
             Ok(())
         }
 
+        /// Modify assets owned by a player
+        #[ink(message)]
+        pub fn modify_asset(
+            &mut self,
+            asset: String,
+            count: i64,
+            increase: bool,
+        ) -> Result<(), ContractError> {
+            let caller = self.env().caller();
+            let mut player = self
+                .players
+                .get(caller)
+                .ok_or(ContractError::PlayerNotFound)?;
+
+            let mut found = false;
+
+            for i in 0..player.assets.len() {
+                let parts: Vec<&str> = player.assets[i].rsplitn(2, '_').collect(); // [count, asset]
+                if parts.len() == 2 && parts[1] == asset {
+                    let existing_count = parts[0]
+                        .parse::<i64>()
+                        .map_err(|_| ContractError::InsufficientAssetCount)?;
+
+                    let new_count = if increase {
+                        existing_count + count
+                    } else {
+                        existing_count - count
+                    };
+
+                    if new_count < 0 {
+                        return Err(ContractError::InsufficientAssetCount);
+                    } else if new_count == 0 {
+                        player.assets.remove(i);
+                    } else {
+                        player.assets[i] = format!("{}_{}", asset, new_count);
+                    }
+
+                    found = true;
+                    break;
+                }
+            }
+
+            if !found {
+                if increase {
+                    player.assets.push(format!("{}_{}", asset, count));
+                } else {
+                    return Err(ContractError::InsufficientAssetCount);
+                }
+            }
+
+            self.players.insert(caller, &player);
+            Ok(())
+        }
+
+        /// Helper function
         fn parse_asset(asset: &str) -> Option<(String, i64)> {
             let mut split = asset.rsplitn(2, '_');
             let qty_str = split.next()?;
