@@ -139,7 +139,7 @@ mod assets {
         /// Each player has:
         /// - A `name`: their in-game identity.
         /// - A `balance`: their current token balance.
-        /// - A list of `assets`: strings representing assets with quantities (e.g., "cod_firegun_9").
+        /// - A list of `assets`: strings representing assets with quantities (e.g., "firegun_9").
         players: Mapping<AccountId, Player>,
 
         /// Mapping from a game to its assets

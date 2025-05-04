@@ -37,7 +37,7 @@ import { Keyring } from '@polkadot/keyring';
 
 
 // blockchain config
-const contract_addr = "5GEQhvys8C5D2DnV7UPa8S7SMWXoXTSUrvmcWZHTBZtUDGrR";
+const contract_addr = "5GfEb4cAtED2TfiG4DX19z995SrR7XRR7NMhxx2v8FecNARJ";
 const wsProvider = new WsProvider('ws://127.0.0.1:9944');
 const api = await ApiPromise.create({ provider: wsProvider });
 const contract = new ContractPromise(api, meta.metadata(), contract_addr);
@@ -48,7 +48,6 @@ const chain = await import('./contract.cjs');
 
 // contract metadata import
 import * as meta from "./metadata.js";
-import { Console } from "console";
 
 // test accounts
 let alice = {};
@@ -208,8 +207,10 @@ async function giftAsset(req, res) {
         // Get data
         const data = req.data.split("$$$");
 
+        console.log(data);
+
         // Call contract to buy asset
-        await chain.giftAsset(api, contract, /* user */bob, data[3], data[1] + "$", parseInt(data[2])).then(() => {
+        await chain.giftAsset(api, contract, /* user */bob, data[3], data[1].trim() + "$", parseInt(data[2])).then(() => {
             // Return the keys to the user for next auth
             return res.send({
                 data: "Asset gifted successfully!",

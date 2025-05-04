@@ -75,7 +75,7 @@ document.body.addEventListener(
               clearField(".player-name");
               appear(".mnemonics-div");
               toast(
-                `You have <code class="bold">10 seconds</code> to copy your keys`
+                `You have 10 seconds to copy your keys`
               );
 
               qs(".mnemonics").innerText = res.data.seed;
